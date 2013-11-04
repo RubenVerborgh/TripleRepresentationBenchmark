@@ -145,7 +145,7 @@ test('cl1', 'Check prototype-based triples for literals', 'gt1', function () {
 
 test('cl2', 'Check object/string-based triples for literals', 'gt2', function () {
   var matches = objectTriples.filter(function (t) {
-    return /^"/.test(t.object);
+    return t.object[0] === '"';
   });
 });
 
