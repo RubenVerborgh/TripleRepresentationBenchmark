@@ -6,36 +6,37 @@ as [discussed](http://lists.w3.org/Archives/Public/public-rdfjs/2013Nov/0000.htm
 ## Tests
 Currently, there are 8 tests, which compare the difference between [prototype-based representations](http://www.w3.org/TR/rdf-interfaces/) and [object/string-based representations](https://github.com/RubenVerborgh/node-n3#representing-uris-and-literals):
 
-1. Generate prototype-based triples
-2. Generate object/string-based triples
-3. Find prototype-based triples with a given subject
-4. Find object/string-based triples with a given subject
-5. Find prototype-based triples with a given object
-6. Find object/string-based triples with a given object
-7. Check prototype-based triples for literals
-8. Check object/string-based triples for literals
+- gt1: Generate prototype-based triples
+- gt2: Generate object/string-based triples
+- fs1: Find prototype-based triples with a given subject
+- fs2: Find object/string-based triples with a given subject
+- fo1: Find prototype-based triples with a given object
+- fo2: Find object/string-based triples with a given object
+- cl1: Check prototype-based triples for literals
+- cl2: Check object/string-based triples for literals
 
 ## Running the benchmark
 - Install [Node](http://nodejs.org/)
-- `./benchmark 3` where `3` is the test number
+- `./benchmark gt1` where `gt1` is the test identifier
 
 ## Current results
 As measured on a mid-2010 MacBook Pro:
 
 <table>
-<tr><td>0.</td><td>Empty test environment</td><td align="right">0.012s</td><td align="right">164MB</td></tr>
-<tr><td>1.</td><td>Generate prototype-based triples</td><td align="right">12.692s</td><td align="right">1241MB</td></tr>
-<tr><td>2.</td><td>Generate object/string-based triples</td><td align="right">4.867s</td><td align="right">803MB</td></tr>
-<tr><td>3.</td><td>Find prototype-based triples with a given subject</td><td align="right">18.848s</td><td align="right">1241MB</td></tr>
-<tr><td>4.</td><td>Find object/string-based triples with a given subject</td><td align="right">9.505s</td><td align="right">804MB</td></tr>
-<tr><td>5.</td><td>Find prototype-based triples with a given object</td><td align="right">20.467s</td><td align="right">1241MB</td></tr>
-<tr><td>6.</td><td>Find object/string-based triples with a given object</td><td align="right">10.571s</td><td align="right">819MB</td></tr>
-<tr><td>7.</td><td>Check prototype-based triples for literals</td><td align="right">17.149s</td><td align="right">1303MB</td></tr>
-<tr><td>8.</td><td>Check object/string-based triples for literals</td><td align="right">8.559s</td><td align="right">1028MB</td></tr>
+<tr><td>init</td><td>Empty test environment</td><td align="right">0.000s</td><td align="right">164MB</td></tr>
+<tr><td>gt1</td><td>Generate prototype-based triples</td><td align="right">13.372s</td><td align="right">1241MB</td></tr>
+<tr><td>gt2</td><td>Generate object/string-based triples</td><td align="right">5.078s</td><td align="right">803MB</td></tr>
+<tr><td>fs1</td><td>Find prototype-based triples with a given subject</td><td align="right">61.593s</td><td align="right">1241MB</td></tr>
+<tr><td>fs2</td><td>Find object/string-based triples with a given subject</td><td align="right">45.920s</td><td align="right">804MB</td></tr>
+<tr><td>fo1</td><td>Find prototype-based triples with a given object</td><td align="right">78.883s</td><td align="right">1241MB</td></tr>
+<tr><td>fo2</td><td>Find object/string-based triples with a given object</td><td align="right">56.719s</td><td align="right">819MB</td></tr>
+<tr><td>cl1</td><td>Check prototype-based triples for literals</td><td align="right">0.997s</td><td align="right">1303MB</td></tr>
+<tr><td>cl2</td><td>Check object/string-based triples for literals</td><td align="right">2.786s</td><td align="right">935MB</td></tr>
 </table>
 
 ### Analysis
-Object/string-based representations are faster and use less memory in all tests.
+Object/string-based representations are faster, except for literal checks.
+In all cases, they use less memory.
 
 - For triple generation, this does not come as a surprise.
 Extra structure brings overhead, in terms of performance and memory.
@@ -46,8 +47,4 @@ as the URI value is encoded in a property.
 the prototype-based version has to rely on a polymorphic function that is different for URIs and literals.
 The object/string-based version only needs string comparisons.
 - For checking whether a triple has URI or literal for object,
-it might seem surprising that object/string-based representations are faster,
-since we need to inspect the string value to answer the question.
-However, the `instanceof` check needed by the prototype-based version is even slower,
-and the fact that there need to be different [hidden classes](https://developers.google.com/v8/design#prop_access)
-for both `Triple` and `Literal` slows this down even further.
+the prototype test is considerably faster than inspecting the first character of the string.
