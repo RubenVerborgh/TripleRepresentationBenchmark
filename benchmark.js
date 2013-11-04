@@ -77,11 +77,10 @@ for (i = 0; i < tripleCount; i++) {
 /* Tests */
 
 // Memory comparison with empty test environment
-test(0, 'Empty test environment', function () {} );
+test('init', 'Empty test environment', null, function () {} );
 
 var prototypeTriples;
-test(1, 'Generate prototype-based triples', function () {;
-  executeTest(0);
+test('gt1', 'Generate prototype-based triples', 'init', function () {;
   prototypeTriples = new Array(tripleCount);
   for (var i = 0; i < tripleCount; i++) {
     var object = objects[i];
@@ -92,8 +91,7 @@ test(1, 'Generate prototype-based triples', function () {;
 });
 
 var objectTriples;
-test(2, 'Generate object/string-based triples', function () {
-  executeTest(0);
+test('gt2', 'Generate object/string-based triples', 'init', function () {
   objectTriples = new Array(tripleCount);
   for (var i = 0; i < tripleCount; i++) {
     var object = objects[i];
@@ -103,8 +101,7 @@ test(2, 'Generate object/string-based triples', function () {
   }
 });
 
-test(3, 'Find prototype-based triples with a given subject', function () {
-  executeTest(1);
+test('fs1', 'Find prototype-based triples with a given subject', 'gt1', function () {
   for (var i = 0; i < findCount; i++) {
     var randomSubject = prototypeTriples[randInt(0, prototypeTriples.length - 1)].subject;
     var matches = prototypeTriples.filter(function (t) {
@@ -113,8 +110,7 @@ test(3, 'Find prototype-based triples with a given subject', function () {
   }
 });
 
-test(4, 'Find object/string-based triples with a given subject', function () {
-  executeTest(2);
+test('fs2', 'Find object/string-based triples with a given subject', 'gt2', function () {
   for (var i = 0; i < findCount; i++) {
     var randomSubject = objectTriples[randInt(0, objectTriples.length - 1)].subject;
     var matches = objectTriples.filter(function (t) {
@@ -123,8 +119,7 @@ test(4, 'Find object/string-based triples with a given subject', function () {
   }
 });
 
-test(5, 'Find prototype-based triples with a given object', function () {
-  executeTest(1);
+test('fo1', 'Find prototype-based triples with a given object', 'gt1', function () {
   for (var i = 0; i < findCount; i++) {
     var randomObject = prototypeTriples[randInt(0, prototypeTriples.length - 1)].object;
     var matches = prototypeTriples.filter(function (t) {
@@ -133,8 +128,7 @@ test(5, 'Find prototype-based triples with a given object', function () {
   }
 });
 
-test(6, 'Find object/string-based triples with a given object', function () {
-  executeTest(2);
+test('fo2', 'Find object/string-based triples with a given object', 'gt2', function () {
   for (var i = 0; i < findCount; i++) {
     var randomObject = objectTriples[randInt(0, objectTriples.length - 1)].object;
     var matches = objectTriples.filter(function (t) {
@@ -143,15 +137,13 @@ test(6, 'Find object/string-based triples with a given object', function () {
   }
 });
 
-test(7, 'Check prototype-based triples for literals', function () {
-  executeTest(1);
+test('cl1', 'Check prototype-based triples for literals', 'gt1', function () {
   var matches = prototypeTriples.filter(function (t) {
     return t.object instanceof Literal;
   });
 });
 
-test(8, 'Check object/string-based triples for literals', function () {
-  executeTest(2);
+test('cl2', 'Check object/string-based triples for literals', 'gt2', function () {
   var matches = objectTriples.filter(function (t) {
     return /^"/.test(t.object);
   });
@@ -196,19 +188,24 @@ function random() {
 }
 
 // Executes a test if it is selected
-function test(id, name, execute) {
-  tests[id] = { name: name, test: execute };
+function test(id, name, dependency, execute) {
+  tests[id] = { name: name, dependency: dependency, test: execute };
   if (id == process.argv[2])
     executeTest(id);
 }
 
 // Executes a test
 function executeTest(id) {
+  var test = tests[id];
+  if (test.dependency)
+    executeTest(test.dependency);
+
   global.gc();
   var startTime = process.hrtime();
-  tests[id].test();
-  var duration = process.hrtime(startTime),
-      durationSeconds = duration[0] + duration[1]/1000000000,
+  test.test();
+  var duration = process.hrtime(startTime);
+
+  var durationSeconds = duration[0] + duration[1]/1000000000,
       durationRounded = (durationSeconds + '').replace(/(\.\d{3})\d+/, '$1');
   console.log(id + '. ' + tests[id].name + ': ' + durationRounded + 's',
               Math.floor(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB');
