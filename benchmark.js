@@ -205,8 +205,9 @@ function test(id, name, execute) {
 // Executes a test
 function executeTest(id) {
   global.gc();
-  var startTime = new Date().getTime();
+  var startTime = process.hrtime();
   tests[id].test();
-  console.log(id + '. ' + tests[id].name + ': ' + (new Date().getTime() - startTime) / 1000 + 's',
+  var duration = process.hrtime(startTime);
+  console.log(id + '. ' + tests[id].name + ': ' + (duration[0] + duration[1]/1000000000) + 's',
               Math.floor(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB');
 }
