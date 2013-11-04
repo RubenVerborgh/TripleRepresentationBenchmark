@@ -1,5 +1,5 @@
 #! /usr/bin/env node --expose-gc
-var seed = 1, tripleCount = 7000000, findCount = 10, tests = {};
+var seed = 1, tripleCount = 7000000, findCount = 100, tests = {};
 var fromCharCode = String.fromCharCode;
 
 /* Primitive RDF prototype chain */
