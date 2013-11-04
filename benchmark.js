@@ -207,7 +207,9 @@ function executeTest(id) {
   global.gc();
   var startTime = process.hrtime();
   tests[id].test();
-  var duration = process.hrtime(startTime);
-  console.log(id + '. ' + tests[id].name + ': ' + (duration[0] + duration[1]/1000000000) + 's',
+  var duration = process.hrtime(startTime),
+      durationSeconds = duration[0] + duration[1]/1000000000,
+      durationRounded = (durationSeconds + '').replace(/(\.\d{3})\d+/, '$1');
+  console.log(id + '. ' + tests[id].name + ': ' + durationRounded + 's',
               Math.floor(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB');
 }
